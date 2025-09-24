@@ -1,11 +1,13 @@
    List of Dependencies:
-* streamlit
-* PyPDF2
-* faiss-cpu
-* numpy
-* langchain
-* langchain-ollama
-* langchain-huggingface
-* langchain-community
+streamlit
+requests
+beautifulsoup4
+numpy
+faiss-cpu
+langchain
+langchain-community
+langchain-ollama
+sentence-transformers
+PyPDF2
 
 
