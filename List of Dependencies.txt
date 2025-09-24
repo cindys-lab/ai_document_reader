@@ -1,0 +1,11 @@
+   List of Dependencies:
+* streamlit
+* PyPDF2
+* faiss-cpu
+* numpy
+* langchain
+* langchain-ollama
+* langchain-huggingface
+* langchain-community
+
+
