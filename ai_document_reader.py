@@ -1,5 +1,6 @@
 import streamlit as st 
-import faiss
+from langchain_community.vectorstores import FAISS
+
 import numpy as np
 import PyPDF2
 from langchain_ollama import OllamaLLM
