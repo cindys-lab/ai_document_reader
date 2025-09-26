@@ -20,65 +20,65 @@ summary_text = ""
 
 # Function to extract texts from PDFs
 def extract_text_from_pdf(uploaded_file):
-	pdf_reader = PyPDF2.PdfReader(uploaded_file)
-	text = ""
-	for page in pdf_reader.pages:
-		text +=page.extract_text() + "\n"
-	return text
+    pdf_reader = PyPDF2.PdfReader(uploaded_file)
+    text = ""
+    for page in pdf_reader.pages:
+        text +=page.extract_text() + "\n"
+    return text
 
 # Function to store text in FAISS
 def store_in_faiss(text, filename):
-	global vector_store
-	st.write(f"Storing document '{filename} in FAISS...")
+    #global vector_store
+    st.write(f"Storing document '{filename} in FAISS...")
 
-	#Split text into chunks
-	splitter = CharacterTextSplitter(chunk_size=500, chunk_overlap=100)
-	texts = splitter.split_text(text)
+    #Split text into chunks
+    splitter = CharacterTextSplitter(chunk_size=500, chunk_overlap=100)
+    texts = splitter.split_text(text)
 
-	# Store in FAISS using LangChain wrapper
+    # Store in FAISS using LangChain wrapper
     vector_store = FAISS.from_texts(texts, embeddings)
 
-	return " Document stored successfully!"
+    return "Document stored successfully!"
 
 # Function to generate AI Summary
 def generate_summary(text):
-	global summary_text
-	st.write(" Generating AI Summary...")
-	summary_text = llm.invoke(f"Summarize the following document: \n\n{text[:3000]}")  #Limiting input size
-	return summary_text
+    global summary_text
+    st.write(" Generating AI Summary...")
+    summary_text = llm.invoke(f"Summarize the following document: \n\n{text[:3000]}")  #Limiting input size
+    return summary_text
 
 
 # Function to retrieve relevant chunks and answer questions
 def retrieve_and_answer(query):
-	global vector_store
+    global vector_store
 
-	if not vector_store:
-		return "No documents available. Please upload a PDF first."
-
-
-	# Search for relevant docs
-	docs = vector_store.similarity_search(query, k=2)
-	context = "\n\n".join([doc.page_content for doc in docs])
+    if not vector_store:
+        return "No documents available. Please upload a PDF first."
 
 
-	if not context:
-		return "No relevant data found in stored documents."
+    # Search for relevant docs
+    docs = vector_store.similarity_search(query, k=2)
+    context = "\n\n".join([doc.page_content for doc in docs])
 
-	#ask AI to generate an answer
-	return llm.invoke()
 
-	# Ask AI to generate an answer	
-	return llm.invoke(f"Based on the following document context, answer the question:\n\n{context}\n\nQuestion: {query}\nAnswer:")
+    if not context:
+        return "No relevant data found in stored documents."
+
+    #ask AI to generate an answer
+    return llm.invoke()
+
+    # Ask AI to generate an answer  
+    return llm.invoke(f"Based on the following document context, answer the question:\n\n{context}\n\nQuestion: {query}\nAnswer:")
 
 # Function to allow file download
 def download_summary():
-	if summary_text:
-		st.download_button(
-			label="Download Summary",
-			data=summary_text,
-			file_name="AI_Summary.txt",
-			mime="text/plain",
-		)
+    if summary_text:
+        st.download_button(
+            label="Download Summary",
+            data=summary_text,
+            file_name="AI_Summary.txt",
+            mime="text/plain",
+        )
 
 # Streamlit Web UI
 st.title(" AI Document Reader & Q&A Bot")
@@ -88,26 +88,26 @@ st.write("Upload a PDF and get AI-generated summary & Q&A!")
 # File uploader for PDF
 uploaded_file = st.file_uploader("Upload a PDF Document", type=["pdf"])
 if uploaded_file:
-	text = extract_text_from_pdf(uploaded_file)
-	store_message = store_in_faiss(text, uploaded_file.name)
-	st.write(store_message)
+    text = extract_text_from_pdf(uploaded_file)
+    store_message = store_in_faiss(text, uploaded_file.name)
+    st.write(store_message)
 
-	# Generate AI Summary
-	summary = generate_summary(text)
-	st.subheader("AI-Generated Summary")
-	st.write(summary)
+    # Generate AI Summary
+    summary = generate_summary(text)
+    st.subheader("AI-Generated Summary")
+    st.write(summary)
 
-	# Enable File Download for Summary
-	download_summary()
+    # Enable File Download for Summary
+    download_summary()
 
 
 
 # User input for Q&A
 query = st.text_input(" Ask a question based on the uploaded document:")
 if query:
-	answer = retrieve_and_answer(query)
-	st.subheader("AI Answer:")
-	st.write(answer)
+    answer = retrieve_and_answer(query)
+    st.subheader("AI Answer:")
+    st.write(answer)
 
 
 
