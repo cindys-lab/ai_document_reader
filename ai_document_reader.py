@@ -14,7 +14,7 @@ llm = OllamaLLM(model = "llama2:7b")
 embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-miniLM-L6-v2")
 
 # Initialize FAISS Vector Database
-index = faiss.IndexFlat(384) # Vector dimension for MiniLM
+#index = faiss.IndexFlat(384) # Vector dimension for MiniLM
 vector_store = {}
 summary_text = ""
 
