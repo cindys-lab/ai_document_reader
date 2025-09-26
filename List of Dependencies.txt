@@ -1,13 +1,9 @@
    List of Dependencies:
-streamlit==1.37.1
-faiss-cpu
-langchain==0.2.1
-langchain-community==0.2.1
-langchain-huggingface==0.0.3
-langchain-ollama==0.0.2
-transformers==4.42.4
-sentence-transformers==2.7.0
+streamlit
+langchain
+langchain-community
+langchain-ollama
+langchain-huggingface
+pypdf2
 numpy
-requests
-beautifulsoup4
-PyPDF2
+
