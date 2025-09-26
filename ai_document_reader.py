@@ -1,6 +1,4 @@
 import streamlit as st 
-from langchain_community.vectorstores import FAISS
-
 import numpy as np
 import PyPDF2
 from langchain_ollama import OllamaLLM
@@ -25,25 +23,20 @@ def extract_text_from_pdf(uploaded_file):
 	pdf_reader = PyPDF2.PdfReader(uploaded_file)
 	text = ""
 	for page in pdf_reader.pages:
-		text += page.extract_text() + "\n"
+		text +=.extract_text() + "\n"
 	return text
 
 # Function to store text in FAISS
 def store_in_faiss(text, filename):
-	global index, vector_store
+	global vector_store
 	st.write(f"Storing document '{filename} in FAISS...")
 
 	#Split text into chunks
 	splitter = CharacterTextSplitter(chunk_size=500, chunk_overlap=100)
 	texts = splitter.split_text(text)
 
-	# Convert text into embeddings
-	vectors = embeddings.embed_documents(texts)
-	vectors = np.array(vectors, dtype=np.float32)
-
-	# Store in FAISS
-	index.add(vectors)
-	vector_store[len(vector_store)] = (filename, texts)
+	# Store in FAISS using LangChain wrapper
+    vector_store = FAISS.from_texts(texts, embeddings)
 
 	return " Document stored successfully!"
 
@@ -57,21 +50,22 @@ def generate_summary(text):
 
 # Function to retrieve relevant chunks and answer questions
 def retrieve_and_answer(query):
-	global index, vector_store
+	global vector_store
 
-	# Convert query into embedding
-	query_vector = np.array(embeddings.embed_query(query), dtype=np.float32).reshape(1, -1)
+	if not vector_store:
+		return "No documents available. Please upload a PDF first."
 
-	# search FAISS
-	D, I = index.search(query_vector, k=2) # Retrieve top 2 similar chunks
 
-	context = ""
-	for idx in I[0]:
-		if idx in  vector_store:
-			context += " ".join(vector_store[idx][1]) + "\n\n"
+	# Search for relevant docs
+	docs = vector_store.similarity_search(query, k=2)
+	context = "\n\n".join([doc.page_content for doc in docs])
+
 
 	if not context:
 		return "No relevant data found in stored documents."
+
+	#ask AI to generate an answer
+	return llm.invoke()
 
 	# Ask AI to generate an answer	
 	return llm.invoke(f"Based on the following document context, answer the question:\n\n{context}\n\nQuestion: {query}\nAnswer:")
@@ -83,7 +77,7 @@ def download_summary():
 			label="Download Summary",
 			data=summary_text,
 			file_name="AI_Summary.txt",
-			mime="text/plain"
+			mime="text/plain",
 		)
 
 # Streamlit Web UI
