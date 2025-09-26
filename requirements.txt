@@ -1,9 +1,8 @@
-   List of Dependencies:
 streamlit
 langchain
 langchain-community
 langchain-ollama
 langchain-huggingface
-PyPDF2
+faiss-cpu
 numpy
-
+PyPDF2
